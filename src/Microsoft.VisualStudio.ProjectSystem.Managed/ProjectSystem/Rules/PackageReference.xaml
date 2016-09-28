@@ -56,7 +56,7 @@
                     Visible="False" 
                     ReadOnly="True" />
 
-    <StringListProperty Name="Dependencies"
+    <!--<StringListProperty Name="Dependencies"
                         DisplayName="Dependencies"
                         Visible="false"
                         Description="A semicolon-delimited list of direct dependencies of current dependency."
@@ -64,5 +64,5 @@
         <StringListProperty.DataSource>
             <DataSource Persistence="ResolvedReference" ItemType="PackageReference" HasConfigurationCondition="False" />
         </StringListProperty.DataSource>
-    </StringListProperty>
+    </StringListProperty>-->
 </Rule>
