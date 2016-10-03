@@ -56,7 +56,6 @@
     <Compile Include="ProjectSystem\VS\Input\Commands\AddClassProjectCSharpCommand.cs" />
     <Compile Include="ProjectSystem\VS\Input\Commands\AddClassProjectVBCommand.cs" />
     <Compile Include="ProjectSystem\VS\Nuget\NugetRestorer.cs" />
-    <Compile Include="ProjectSystem\VS\Nuget\ScratchNugetRestorer.cs" />
     <Compile Include="ProjectSystem\VS\Reload\IProjectReloadManager.cs" />
     <Compile Include="ProjectSystem\VS\Reload\ProjectReloadManager.cs" />
     <Compile Include="ProjectSystem\VS\IOptionsSettings.cs" />
