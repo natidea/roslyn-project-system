@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace Microsoft.VisualStudio.ProjectSystem.VS.Nuget
+namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
 {
     /// <summary>
     /// Abstract list with Item method for getting members by index or name

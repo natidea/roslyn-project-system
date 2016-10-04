@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace Microsoft.VisualStudio.ProjectSystem.VS.Nuget
+namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
 {
     internal class ReferenceItems : VsItemList<IVsReferenceItem>, IVsReferenceItems
     {

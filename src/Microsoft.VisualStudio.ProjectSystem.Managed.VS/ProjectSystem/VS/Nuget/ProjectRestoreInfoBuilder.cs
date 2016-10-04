@@ -5,7 +5,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using NuGet.SolutionRestoreManager;
 
-namespace Microsoft.VisualStudio.ProjectSystem.VS.Nuget
+namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
 {
     internal static class ProjectRestoreInfoBuilder
     {

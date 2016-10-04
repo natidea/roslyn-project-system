@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
-namespace Microsoft.VisualStudio.ProjectSystem.VS.Nuget
+namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
 {
     using TIdentityDictionary = IImmutableDictionary<NamedIdentity, IComparable>;
 

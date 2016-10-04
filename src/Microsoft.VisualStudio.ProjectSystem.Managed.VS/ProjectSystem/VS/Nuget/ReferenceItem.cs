@@ -3,7 +3,7 @@
 using NuGet.SolutionRestoreManager;
 using System;
 
-namespace Microsoft.VisualStudio.ProjectSystem.VS.Nuget
+namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
 {
     internal class ReferenceItem : IVsReferenceItem
     {

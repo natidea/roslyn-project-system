@@ -4,7 +4,7 @@ using NuGet.SolutionRestoreManager;
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.VisualStudio.ProjectSystem.VS.Nuget
+namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
 {
     internal class TargetFrameworks : VsItemList<IVsTargetFrameworkInfo>, IVsTargetFrameworks
     {
