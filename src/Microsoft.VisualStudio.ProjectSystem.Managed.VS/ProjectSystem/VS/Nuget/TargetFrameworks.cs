@@ -8,10 +8,10 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.Nuget
 {
     internal class TargetFrameworks : VsItemList<IVsTargetFrameworkInfo>, IVsTargetFrameworks
     {
-        public TargetFrameworks(): base() { }
+        public TargetFrameworks() : base() { }
 
         public TargetFrameworks(IEnumerable<IVsTargetFrameworkInfo> collection) : base(collection) { }
 
-        public override String GetName(IVsTargetFrameworkInfo value) => value.TargetFrameworkMoniker;
+        protected override String GetKeyForItem(IVsTargetFrameworkInfo value) => value.TargetFrameworkMoniker;
     }
 }

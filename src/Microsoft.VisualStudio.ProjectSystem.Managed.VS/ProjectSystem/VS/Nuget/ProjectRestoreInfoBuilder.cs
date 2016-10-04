@@ -17,8 +17,10 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.Nuget
             foreach (IProjectVersionedValue<IProjectSubscriptionUpdate> update in updates)
             {
                 var configurationChanges = update.Value.ProjectChanges[ConfigurationGeneral.SchemaName];
-                baseIntermediatePath = baseIntermediatePath ?? configurationChanges.After.Properties["BaseIntermediateOutputPath"];
-                string targetFrameworkMoniker = configurationChanges.After.Properties["TargetFrameworkMoniker"];
+                baseIntermediatePath = baseIntermediatePath ?? 
+                    configurationChanges.After.Properties[ConfigurationGeneral.BaseIntermediateOutputPathProperty];
+                string targetFrameworkMoniker = 
+                    configurationChanges.After.Properties[ConfigurationGeneral.TargetFrameworkMonikerProperty];
 
                 if (targetFrameworks.Item(targetFrameworkMoniker) == null)
                 {
@@ -43,8 +45,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.Nuget
 
         private static IVsReferenceItems GetReferences(IImmutableDictionary<String, IImmutableDictionary<String, String>> items)
         {
-            var refItems = new ReferenceItems();
-            refItems.AddRange(items.Select(p => new ReferenceItem
+            return new ReferenceItems(items.Select(p => new ReferenceItem
             {
                 Name = p.Key,
                 Properties = new ReferenceProperties(p.Value.Select(v => new ReferenceProperty
@@ -52,7 +53,6 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.Nuget
                     Name = v.Key, Value = v.Value
                 })) 
             }));
-            return refItems;
         }
     }
 }

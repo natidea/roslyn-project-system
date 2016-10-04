@@ -3,15 +3,16 @@
 using NuGet.SolutionRestoreManager;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace Microsoft.VisualStudio.ProjectSystem.VS.Nuget
 {
     internal class ReferenceItems : VsItemList<IVsReferenceItem>, IVsReferenceItems
     {
-        public ReferenceItems(): base() { }
+        public ReferenceItems() : base() { }
 
         public ReferenceItems(IEnumerable<IVsReferenceItem> collection) : base(collection) { }
 
-        public override String GetName(IVsReferenceItem value) => value.Name;
+        protected override String GetKeyForItem(IVsReferenceItem value) => value.Name;
     }
 }

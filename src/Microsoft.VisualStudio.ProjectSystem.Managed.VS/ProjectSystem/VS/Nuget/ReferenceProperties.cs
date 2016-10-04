@@ -8,10 +8,10 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.Nuget
 {
     internal class ReferenceProperties : VsItemList<IVsReferenceProperty>, IVsReferenceProperties
     {
-        public ReferenceProperties(): base() { }
+        public ReferenceProperties() : base() { }
 
         public ReferenceProperties(IEnumerable<IVsReferenceProperty> collection) : base(collection) { }
 
-        public override String GetName(IVsReferenceProperty value) => value.Name;
+        protected override String GetKeyForItem(IVsReferenceProperty value) => value.Name;
     }
 }

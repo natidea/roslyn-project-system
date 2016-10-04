@@ -17,9 +17,13 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.Nuget
     internal class NugetRestorer : OnceInitializedOnceDisposedAsync
     {
         private readonly IUnconfiguredProjectVsServices _projectVsServices;
-        private IVsSolutionRestoreService _solutionRestoreService;
-        private ImmutableHashSet<string> _watchedRules;
-        private IDisposable _evaluationSubscriptionLink;        
+        private readonly IVsSolutionRestoreService _solutionRestoreService;
+        private IDisposable _evaluationSubscriptionLink;
+
+        private static ImmutableHashSet<string> _watchedRules = Empty.OrdinalIgnoreCaseStringSet
+            .Add(ConfigurationGeneral.SchemaName)
+            .Add(ProjectReference.SchemaName)
+            .Add(PackageReference.SchemaName);
 
         [ImportingConstructor]
         public NugetRestorer(
@@ -27,23 +31,8 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.Nuget
             IVsSolutionRestoreService solutionRestoreService) 
             : base(projectVsServices.ThreadingService.JoinableTaskContext)
         {
-            Requires.NotNull(projectVsServices, nameof(projectVsServices));
-
-            _solutionRestoreService = solutionRestoreService;
-
             _projectVsServices = projectVsServices;
-            _watchedRules = Empty.OrdinalIgnoreCaseStringSet
-                                 .Add(ConfigurationGeneral.SchemaName)
-                                 .Add(ProjectReference.SchemaName)
-                                 .Add(PackageReference.SchemaName);
-        }
-
-        public UnconfiguredProject Project
-        {
-            get
-            {
-                return _projectVsServices.Project;
-            }
+            _solutionRestoreService = solutionRestoreService;
         }
 
         [ProjectAutoLoad(startAfter: ProjectLoadCheckpoint.ProjectFactoryCompleted)]
@@ -57,20 +46,20 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.Nuget
         {
             ResetSubscriptions();
 
-            await TplExtensions.CompletedTask.ConfigureAwait(false);
+            await InitializeAsync().ConfigureAwait(false);
         }
 
         protected override Task DisposeCoreAsync(bool initialized)
         {
             _evaluationSubscriptionLink?.Dispose();
-            return TplExtensions.CompletedTask;
+            return Task.CompletedTask;
         }
 
         private void ResetSubscriptions()
         {
             _evaluationSubscriptionLink?.Dispose();
 
-            var currentProjects = Project.LoadedConfiguredProjects;
+            var currentProjects = _projectVsServices.Project.LoadedConfiguredProjects;
 
             if (currentProjects.Any())
             {
@@ -90,8 +79,6 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.Nuget
             await _solutionRestoreService
                 .NominateProjectAsync(_projectVsServices.Project.FullPath, projectRestoreInfo, CancellationToken.None)
                 .ConfigureAwait(false);
-
-            await Task.CompletedTask.ConfigureAwait(false);
         }
     }
 }
