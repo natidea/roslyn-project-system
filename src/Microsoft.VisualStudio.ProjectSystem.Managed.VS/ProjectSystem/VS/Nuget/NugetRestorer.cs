@@ -14,7 +14,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.Nuget
 {
     using TIdentityDictionary = IImmutableDictionary<NamedIdentity, IComparable>;
 
-    internal class NugetRestorer : OnceInitializedOnceDisposedAsync
+    internal class NuGetRestorer : OnceInitializedOnceDisposedAsync
     {
         private readonly IUnconfiguredProjectVsServices _projectVsServices;
         private readonly IVsSolutionRestoreService _solutionRestoreService;
@@ -26,7 +26,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.Nuget
             .Add(PackageReference.SchemaName);
 
         [ImportingConstructor]
-        public NugetRestorer(
+        public NuGetRestorer(
             IUnconfiguredProjectVsServices projectVsServices,
             IVsSolutionRestoreService solutionRestoreService) 
             : base(projectVsServices.ThreadingService.JoinableTaskContext)
