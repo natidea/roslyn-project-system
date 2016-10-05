@@ -54,5 +54,36 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
                 })) 
             }));
         }
+
+        internal static IVsProjectRestoreInfo Build(IProjectVersionedValue<IProjectSubscriptionUpdate> update)
+        {
+            string baseIntermediatePath = null;
+            var targetFrameworks = new TargetFrameworks();
+
+            var configurationChanges = update.Value.ProjectChanges[ConfigurationGeneral.SchemaName];
+            baseIntermediatePath = baseIntermediatePath ??
+                configurationChanges.After.Properties[ConfigurationGeneral.BaseIntermediateOutputPathProperty];
+            string targetFrameworkMoniker =
+                configurationChanges.After.Properties[ConfigurationGeneral.TargetFrameworkMonikerProperty];
+
+            if (targetFrameworks.Item(targetFrameworkMoniker) == null)
+            {
+                var projectReferencesChanges = update.Value.ProjectChanges[ProjectReference.SchemaName];
+                var packageReferencesChanges = update.Value.ProjectChanges[PackageReference.SchemaName];
+
+                targetFrameworks.Add(new TargetFrameworkInfo
+                {
+                    TargetFrameworkMoniker = targetFrameworkMoniker,
+                    ProjectReferences = GetReferences(projectReferencesChanges.After.Items),
+                    PackageReferences = GetReferences(packageReferencesChanges.After.Items)
+                });
+            }
+
+            return new ProjectRestoreInfo
+            {
+                BaseIntermediatePath = baseIntermediatePath,
+                TargetFrameworks = targetFrameworks
+            };
+        }
     }
 }

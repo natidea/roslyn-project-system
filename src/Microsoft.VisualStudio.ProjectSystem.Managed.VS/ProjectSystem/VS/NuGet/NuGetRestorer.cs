@@ -17,7 +17,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
     internal class NuGetRestorer : OnceInitializedOnceDisposedAsync
     {
         private readonly IUnconfiguredProjectVsServices _projectVsServices;
-        private readonly IVsSolutionRestoreService _solutionRestoreService;
+        //private readonly IVsSolutionRestoreService _solutionRestoreService;
         private IDisposable _evaluationSubscriptionLink;
 
         private static ImmutableHashSet<string> _watchedRules = Empty.OrdinalIgnoreCaseStringSet
@@ -25,18 +25,18 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
             .Add(ProjectReference.SchemaName)
             .Add(PackageReference.SchemaName);
 
-        [ImportingConstructor]
+        //[ImportingConstructor]
         public NuGetRestorer(
-            IUnconfiguredProjectVsServices projectVsServices,
-            IVsSolutionRestoreService solutionRestoreService) 
+            IUnconfiguredProjectVsServices projectVsServices/*,
+            IVsSolutionRestoreService solutionRestoreService*/) 
             : base(projectVsServices.ThreadingService.JoinableTaskContext)
         {
             _projectVsServices = projectVsServices;
-            _solutionRestoreService = solutionRestoreService;
+            //_solutionRestoreService = solutionRestoreService;
         }
 
-        [ProjectAutoLoad(startAfter: ProjectLoadCheckpoint.ProjectFactoryCompleted)]
-        [AppliesTo(ProjectCapability.CSharpOrVisualBasic)]
+        //[ProjectAutoLoad(startAfter: ProjectLoadCheckpoint.ProjectFactoryCompleted)]
+        //[AppliesTo(ProjectCapability.CSharpOrVisualBasic)]
         internal async Task OnProjectFactoryCompletedAsync()
         {
             await InitializeCoreAsync(CancellationToken.None).ConfigureAwait(false);
@@ -44,6 +44,8 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
 
         protected override async Task InitializeCoreAsync(CancellationToken cancellationToken)
         {
+            await Task.Delay(3000).ConfigureAwait(false);
+
             ResetSubscriptions();
 
             await InitializeAsync().ConfigureAwait(false);
@@ -76,9 +78,64 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
         {
             IVsProjectRestoreInfo projectRestoreInfo = ProjectRestoreInfoBuilder.Build(sources.Item1);
 
-            await _solutionRestoreService
-                .NominateProjectAsync(_projectVsServices.Project.FullPath, projectRestoreInfo, CancellationToken.None)
-                .ConfigureAwait(false);
+            //await _solutionRestoreService
+            //    .NominateProjectAsync(_projectVsServices.Project.FullPath, projectRestoreInfo, CancellationToken.None)
+            //    .ConfigureAwait(false);
+
+            await DoNothing(projectRestoreInfo).ConfigureAwait(false);
+        }
+
+        private Task DoNothing(IVsProjectRestoreInfo projectRestoreInfo)
+        {
+            return Task.CompletedTask;
+        }
+    }
+
+    internal class ConfiguredNuGetRestorer
+    {
+        private readonly ConfiguredProject _project;
+        private readonly IProjectSubscriptionService _projectSubscriptionService;
+        //private readonly IVsSolutionRestoreService _solutionRestoreService;
+        private IDisposable _evaluationSubscriptionLink;
+
+        private static ImmutableHashSet<string> _watchedRules = Empty.OrdinalIgnoreCaseStringSet
+            .Add(ConfigurationGeneral.SchemaName)
+            .Add(ProjectReference.SchemaName)
+            .Add(PackageReference.SchemaName);
+
+        [ImportingConstructor]
+        public ConfiguredNuGetRestorer(
+            ConfiguredProject project,
+            //IVsSolutionRestoreService solutionRestoreService,
+            IProjectSubscriptionService projectSubscriptionService)
+        {
+            _project = project;
+            _projectSubscriptionService = projectSubscriptionService;
+            //_solutionRestoreService = solutionRestoreService;
+        }
+
+
+        [AppliesTo(ProjectCapability.CSharpOrVisualBasic)]
+        [ConfiguredProjectAutoLoad]
+        public void OnProjectLoaded()
+        {
+            var target = new ActionBlock<IProjectVersionedValue<IProjectSubscriptionUpdate>>(ProjectPropertyChangedAsync);
+            _evaluationSubscriptionLink = _projectSubscriptionService.ProjectRuleSource.SourceBlock.LinkTo(
+                target,
+                ruleNames: _watchedRules,
+                initialDataAsNew: true,
+                suppressVersionOnlyUpdates: true);
+        }
+
+        private async Task ProjectPropertyChangedAsync(IProjectVersionedValue<IProjectSubscriptionUpdate> update)
+        {
+            IVsProjectRestoreInfo projectRestoreInfo = ProjectRestoreInfoBuilder.Build(update);
+
+            //await _solutionRestoreService
+            //    .NominateProjectAsync(_project.UnconfiguredProject.FullPath, projectRestoreInfo, CancellationToken.None)
+            //    .ConfigureAwait(false);
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
     }
 }

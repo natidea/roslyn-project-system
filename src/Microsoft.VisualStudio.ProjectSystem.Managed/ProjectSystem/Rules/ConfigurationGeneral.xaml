@@ -120,5 +120,5 @@
 
     <!-- Represents the "LanguageName" that is passed to Roslyn -->
     <StringProperty Name="LanguageServiceName" ReadOnly="True" Visible="False" />
-    <StringProperty Name="IntermediateOutputPath" Visible="False" />
+    <StringProperty Name="IntermediateOutputPath" Visible="True" />
 </Rule>

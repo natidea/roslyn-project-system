@@ -17,7 +17,8 @@
     
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
 
-    <ManagedXamlResourcesDirectory Condition="$(ManagedXamlResourcesDirectory) == ''">$(MSBuildThisFileDirectory)</ManagedXamlResourcesDirectory>
+    <!--<ManagedXamlResourcesDirectory Condition="$(ManagedXamlResourcesDirectory) == ''">$(MSBuildThisFileDirectory)</ManagedXamlResourcesDirectory>-->
+    <ManagedXamlResourcesDirectory>C:\R\A\rosproj\bin\Debug\Rules\</ManagedXamlResourcesDirectory>
     <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
   </PropertyGroup>
 

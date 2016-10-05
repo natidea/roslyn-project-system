@@ -31,7 +31,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.Debug
 
         internal DataFlowExtensionMethodCaller WrapperMethodCaller { get; set; }
 
-        [ImportingConstructor]
+        //[ImportingConstructor]
         public StartupProjectRegistrar(
             IUnconfiguredProjectVsServices projectVsServices,
             SVsServiceProvider serviceProvider,
@@ -55,8 +55,8 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.Debug
             WrapperMethodCaller = new DataFlowExtensionMethodCaller(new DataFlowExtensionMethodWrapper());
         }
 
-        [ProjectAutoLoad]
-        [AppliesTo(ProjectCapability.CSharpOrVisualBasic)]
+        //[ProjectAutoLoad]
+        //[AppliesTo(ProjectCapability.CSharpOrVisualBasic)]
         internal async Tasks.Task OnProjectFactoryCompletedAsync()
         {
             await InitializeCoreAsync(CancellationToken.None).ConfigureAwait(false);
