@@ -3,7 +3,10 @@
 using System;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading.Tasks;
 using NuGet.SolutionRestoreManager;
+using Microsoft.VisualStudio.ProjectSystem.Utilities;
+using System.IO;
 
 namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
 {
@@ -30,7 +33,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
                     targetFrameworks.Add(new TargetFrameworkInfo
                     {
                         TargetFrameworkMoniker = targetFrameworkMoniker,
-                        ProjectReferences = GetReferences(projectReferencesChanges.After.Items),
+                        ProjectReferences = GetProjectReferences(projectReferencesChanges.After.Items),
                         PackageReferences = GetReferences(packageReferencesChanges.After.Items)
                     });
                 }
@@ -55,6 +58,22 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
             }));
         }
 
+        private static IVsReferenceItems GetProjectReferences(IImmutableDictionary<String, IImmutableDictionary<String, String>> items)
+        {
+            var referenceItems = GetReferences(items);
+            foreach (ReferenceItem item in referenceItems)
+            {
+                string fullPathFromDefining = Path.Combine(item.Properties.Item("DefiningProjectDirectory").Value, item.Name);
+                string projectFileFullPath = Path.GetFullPath(fullPathFromDefining);
+
+                ((ReferenceProperties)item.Properties).Add(new ReferenceProperty
+                {
+                    Name = "ProjectFileFullPath", Value = projectFileFullPath
+                });
+            }
+            return referenceItems;
+        }
+
         internal static IVsProjectRestoreInfo Build(IProjectVersionedValue<IProjectSubscriptionUpdate> update)
         {
             string baseIntermediatePath = null;
@@ -66,6 +85,8 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
             string targetFrameworkMoniker =
                 configurationChanges.After.Properties[ConfigurationGeneral.TargetFrameworkMonikerProperty];
 
+            if (string.IsNullOrEmpty(targetFrameworkMoniker)) return null;
+
             if (targetFrameworks.Item(targetFrameworkMoniker) == null)
             {
                 var projectReferencesChanges = update.Value.ProjectChanges[ProjectReference.SchemaName];
@@ -74,7 +95,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
                 targetFrameworks.Add(new TargetFrameworkInfo
                 {
                     TargetFrameworkMoniker = targetFrameworkMoniker,
-                    ProjectReferences = GetReferences(projectReferencesChanges.After.Items),
+                    ProjectReferences = GetProjectReferences(projectReferencesChanges.After.Items),
                     PackageReferences = GetReferences(packageReferencesChanges.After.Items)
                 });
             }

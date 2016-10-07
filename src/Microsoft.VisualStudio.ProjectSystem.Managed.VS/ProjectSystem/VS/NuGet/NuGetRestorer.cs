@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using Microsoft.VisualStudio.Threading;
-using NuGet.SolutionRestoreManager;
 using System;
 using System.Collections.Immutable;
 using System.ComponentModel.Composition;
@@ -12,6 +11,9 @@ using System.Threading.Tasks.Dataflow;
 
 namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
 {
+    using global::NuGet.SolutionRestoreManager;
+    using Microsoft.VisualStudio.ProjectSystem.Utilities;
+    using Microsoft.VisualStudio.Shell.Interop;
     using TIdentityDictionary = IImmutableDictionary<NamedIdentity, IComparable>;
 
     internal class NuGetRestorer : OnceInitializedOnceDisposedAsync
@@ -28,7 +30,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
         //[ImportingConstructor]
         public NuGetRestorer(
             IUnconfiguredProjectVsServices projectVsServices/*,
-            IVsSolutionRestoreService solutionRestoreService*/) 
+            IVsSolutionRestoreService solutionRestoreService*/)
             : base(projectVsServices.ThreadingService.JoinableTaskContext)
         {
             _projectVsServices = projectVsServices;
@@ -91,11 +93,11 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
         }
     }
 
-    internal class ConfiguredNuGetRestorer
+    public class ConfiguredNuGetRestorer
     {
         private readonly ConfiguredProject _project;
         private readonly IProjectSubscriptionService _projectSubscriptionService;
-        //private readonly IVsSolutionRestoreService _solutionRestoreService;
+        private readonly IVsSolutionRestoreService _solutionRestoreService;
         private IDisposable _evaluationSubscriptionLink;
 
         private static ImmutableHashSet<string> _watchedRules = Empty.OrdinalIgnoreCaseStringSet
@@ -106,14 +108,13 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
         [ImportingConstructor]
         public ConfiguredNuGetRestorer(
             ConfiguredProject project,
-            //IVsSolutionRestoreService solutionRestoreService,
+            IVsSolutionRestoreService solutionRestoreService,
             IProjectSubscriptionService projectSubscriptionService)
         {
             _project = project;
             _projectSubscriptionService = projectSubscriptionService;
-            //_solutionRestoreService = solutionRestoreService;
+            _solutionRestoreService = solutionRestoreService;
         }
-
 
         [AppliesTo(ProjectCapability.CSharpOrVisualBasic)]
         [ConfiguredProjectAutoLoad]
@@ -127,13 +128,16 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
                 suppressVersionOnlyUpdates: true);
         }
 
-        private async Task ProjectPropertyChangedAsync(IProjectVersionedValue<IProjectSubscriptionUpdate> update)
+        private async Task ProjectPropertyChangedAsync(IProjectVersionedValue<IProjectSubscriptionUpdate> obj)
         {
-            IVsProjectRestoreInfo projectRestoreInfo = ProjectRestoreInfoBuilder.Build(update);
+            IVsProjectRestoreInfo projectRestoreInfo = ProjectRestoreInfoBuilder.Build(obj);
 
-            //await _solutionRestoreService
-            //    .NominateProjectAsync(_project.UnconfiguredProject.FullPath, projectRestoreInfo, CancellationToken.None)
-            //    .ConfigureAwait(false);
+            if (projectRestoreInfo != null)
+            {
+                await _solutionRestoreService
+                    .NominateProjectAsync(_project.UnconfiguredProject.FullPath, projectRestoreInfo, CancellationToken.None)
+                    .ConfigureAwait(false);
+            }
 
             await Task.CompletedTask.ConfigureAwait(false);
         }

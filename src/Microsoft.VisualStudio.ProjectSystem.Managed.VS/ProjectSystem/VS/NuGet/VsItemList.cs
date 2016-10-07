@@ -26,18 +26,20 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
 
         public T Item(Object index)
         {
-            if (index is string)
+            try
             {
-                return this[(string)index];
+                if (index is string)
+                {
+                    return this[(string)index];
+                }
+                else if (index is int)
+                {
+                    return this[(int)index];
+                }
             }
-            else if (index is int)
-            {
-                return this[(int)index];
-            }
-            else
-            {
-                return default(T);
-            }
+            catch (Exception) { }
+
+            return default(T);
         }
     }
 }
