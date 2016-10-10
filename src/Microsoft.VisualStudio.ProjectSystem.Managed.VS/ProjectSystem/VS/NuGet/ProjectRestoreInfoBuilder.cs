@@ -4,6 +4,7 @@ using System;
 using System.Collections.Immutable;
 using System.Linq;
 using NuGet.SolutionRestoreManager;
+using System.IO;
 
 namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
 {
