@@ -34,6 +34,7 @@
     <Compile Include="Input\CommandGroup.cs" />
     <Compile Include="Input\UIHierarchyWindowCommandId.cs" />
     <Compile Include="Input\VisualStudioStandard97CommandId.cs" />
+    <Compile Include="ProjectSystem\VS\NuGet\DummySubscriber.cs" />
     <Compile Include="ProjectSystem\VS\NuGet\VsItemList.cs" />
     <Compile Include="ProjectSystem\VS\NuGet\ProjectRestoreInfo.cs" />
     <Compile Include="ProjectSystem\VS\NuGet\ProjectRestoreInfoBuilder.cs" />
