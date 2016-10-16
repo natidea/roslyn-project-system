@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -42,12 +43,12 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS
             return model.FromJson(jsonString);
         }
     }
-
+    
     internal class IProjectSubscriptionUpdateModel : JsonModel<IProjectSubscriptionUpdate>
     {
         public IImmutableDictionary<string, IProjectRuleSnapshotModel> CurrentState { get; set; }
         public IImmutableDictionary<string, IProjectChangeDescriptionModel> ProjectChanges { get; set; }
-        public ProjectConfiguration ProjectConfiguration { get; set; }
+        public ProjectConfigurationModel ProjectConfiguration { get; set; }
 
         public override IProjectSubscriptionUpdate ToActualModel()
         {
@@ -65,7 +66,10 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS
                                             .ToImmutableDictionary();
             }
 
-            model.ProjectConfiguration = ProjectConfiguration;
+            if (ProjectConfiguration != null)
+            {
+                model.ProjectConfiguration = ProjectConfiguration.ToActualModel();
+            }
 
             return model;
         }

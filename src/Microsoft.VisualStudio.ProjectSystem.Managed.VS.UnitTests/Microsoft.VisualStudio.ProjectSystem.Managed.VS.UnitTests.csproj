@@ -64,13 +64,13 @@
     <Compile Include="Mocks\IJsonModel.cs" />
     <Compile Include="Mocks\IDependencyNodeFactory.cs" />
     <Compile Include="Mocks\IProjectCatalogSnapshotFactory.cs" />
+    <Compile Include="Mocks\ProjectConfigurationFactory.cs" />
     <Compile Include="Mocks\IProjectSubscriptionUpdateFactory.cs" />
     <Compile Include="Mocks\IProjectRuleSnapshotFactory.cs" />
     <Compile Include="Mocks\IProjectChangeDiffFactory.cs" />
     <Compile Include="Mocks\IProjectChangeDescriptionFactory.cs" />
     <Compile Include="Mocks\IProjectValueDataSourceFactory.cs" />
     <Compile Include="Mocks\DataFlowExtensionMethodWrapperMock.cs" />
-    <Compile Include="Mocks\IProjectVersionedValueFactory.cs" />
     <Compile Include="Mocks\IRoslynServicesFactory.cs" />
     <Compile Include="Mocks\IServiceProviderFactory.cs" />
     <Compile Include="Mocks\IServiceProviderMoq.cs" />
