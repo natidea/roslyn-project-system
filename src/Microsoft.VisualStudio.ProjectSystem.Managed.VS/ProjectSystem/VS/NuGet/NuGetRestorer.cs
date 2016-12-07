@@ -133,8 +133,8 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
 
             if (projectRestoreInfo != null)
             {
-                var restoreTask = JoinableFactory.RunAsync(() => _solutionRestoreService
-                               .NominateProjectAsync(_projectVsServices.Project.FullPath, projectRestoreInfo, CancellationToken.None));
+                //var restoreTask = JoinableFactory.RunAsync(() => _solutionRestoreService
+                //               .NominateProjectAsync(_projectVsServices.Project.FullPath, projectRestoreInfo, CancellationToken.None));
 
                 _projectVsServices.Project.Services.ProjectAsynchronousTasks
                     .RegisterCriticalAsyncTask(JoinableFactory.RunAsync(async () => 
