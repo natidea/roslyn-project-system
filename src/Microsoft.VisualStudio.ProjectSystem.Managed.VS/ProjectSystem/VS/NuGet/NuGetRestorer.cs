@@ -133,10 +133,26 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
 
             if (projectRestoreInfo != null)
             {
+                var restoreTask = JoinableFactory.RunAsync(() => _solutionRestoreService
+                               .NominateProjectAsync(_projectVsServices.Project.FullPath, projectRestoreInfo, CancellationToken.None));
+
                 _projectVsServices.Project.Services.ProjectAsynchronousTasks
-                    .RegisterCriticalAsyncTask(JoinableFactory.RunAsync(() => _solutionRestoreService
-                            .NominateProjectAsync(_projectVsServices.Project.FullPath, projectRestoreInfo, CancellationToken.None)),
-                            registerFaultHandler: true);
+                    .RegisterCriticalAsyncTask(JoinableFactory.RunAsync(async () => 
+                    {
+                        await _solutionRestoreService
+                               .NominateProjectAsync(_projectVsServices.Project.FullPath, projectRestoreInfo, CancellationToken.None)
+                               .ConfigureAwait(false);
+
+                        Microsoft.Internal.Performance.CodeMarkers.Instance.CodeMarker(7343);
+
+                    }), registerFaultHandler: true);
+
+                //restoreTask.GetAwaiter();
+
+                //await restoreTask.ContinueWith(t =>
+                //{
+                //    Microsoft.Internal.Performance.CodeMarkers.Instance.CodeMarker(3);
+                //}).ConfigureAwait(false);
             }
 
             return Task.CompletedTask;
