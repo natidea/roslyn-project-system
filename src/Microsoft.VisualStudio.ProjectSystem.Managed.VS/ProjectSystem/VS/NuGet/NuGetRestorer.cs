@@ -25,6 +25,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
         private IDisposable _targetFrameworkSubscriptionLink;
 
         private const int perfPackageRestoreEnd = 7343;
+        private bool _needToNominateRestore = false;
 
         private static ImmutableHashSet<string> _targetFrameworkWatchedRules = Empty.OrdinalIgnoreCaseStringSet
             .Add(NuGetRestore.SchemaName);
@@ -33,6 +34,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
             .Add(NuGetRestore.SchemaName)
             .Add(ProjectReference.SchemaName)
             .Add(PackageReference.SchemaName)
+            .Add(CompilerCommandLineArgs.SchemaName)
             .Add(DotNetCliToolReference.SchemaName);
 
         [ImportingConstructor]
@@ -131,7 +133,7 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
 
         private Task ProjectPropertyChangedAsync(Tuple<ImmutableList<IProjectValueVersions>, TIdentityDictionary> sources)
         {
-            IVsProjectRestoreInfo projectRestoreInfo = ProjectRestoreInfoBuilder.Build(sources.Item1, _projectVsServices.Project);
+            IVsProjectRestoreInfo projectRestoreInfo = GetRestoreInfo(sources.Item1);
 
             if (projectRestoreInfo != null)
             {
@@ -152,6 +154,41 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.NuGet
 
             return Task.CompletedTask;
         }
+
+        private IVsProjectRestoreInfo GetRestoreInfo(ImmutableList<IProjectValueVersions> versionUpdates)
+        {
+            var updates = versionUpdates.Cast<IProjectVersionedValue<IProjectSubscriptionUpdate>>();
+            
+            // did design time build fail for any TFM
+            bool designTimeBuildFailed = updates.Any(u => HasDesignTimeBuildFailure(u));
+
+            // do any underlying subscriptions have changes to nominate
+            bool hasChangesToNominate = updates.Any(u => HasChangesToNominate(u));
+
+            if (!designTimeBuildFailed && (hasChangesToNominate || _needToNominateRestore))
+            {
+                _needToNominateRestore = false;
+                return ProjectRestoreInfoBuilder.Build(updates, _projectVsServices.Project);
+            }
+
+            // remember the presence changes for the next successful DT build
+            _needToNominateRestore |= designTimeBuildFailed && hasChangesToNominate;
+            return null;            
+        }
+
+        private bool HasDesignTimeBuildFailure(IProjectVersionedValue<IProjectSubscriptionUpdate> update)
+        {
+            IProjectChangeDescription projectChange = update.Value.ProjectChanges
+                .FirstOrDefault(p => p.Key == CompilerCommandLineArgs.SchemaName)
+                .Value;
+
+            return projectChange == null ? true : !projectChange.After.Items.Any();
+        }
+
+        private bool HasChangesToNominate(IProjectVersionedValue<IProjectSubscriptionUpdate> update)
+            => update.Value.ProjectChanges
+                .Where(p => p.Key != CompilerCommandLineArgs.SchemaName)
+                .Any(c => c.Value.Difference.AnyChanges);
 
         private static bool HasTargetFrameworkChanged(IProjectVersionedValue<IProjectSubscriptionUpdate> update)
         {
