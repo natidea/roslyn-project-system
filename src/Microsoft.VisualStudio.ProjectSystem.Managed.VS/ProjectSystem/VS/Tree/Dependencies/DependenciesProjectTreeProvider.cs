@@ -593,7 +593,9 @@ namespace Microsoft.VisualStudio.ProjectSystem.VS.Tree.Dependencies
             {
                 if (dependency.Resolved)
                 {
-                    rule = configuredProjectExports.RuleFactory.CreateResolvedReferencePageRule(
+                    rule = schema.Name == ResolvedPackageReference.SchemaName
+                        ? browseObjectsCatalog.BindToContext(PackageReference.SchemaName, context)
+                        : configuredProjectExports.RuleFactory.CreateResolvedReferencePageRule(
                                 schema,
                                 context,
                                 dependency.Name,
